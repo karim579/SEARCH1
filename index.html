@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بحث الفاتورة</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      padding: 20px; 
+      background: url('https://i.imgur.com/3wpVcbp.jpeg') no-repeat center center fixed; 
+      background-size: cover;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    #results { margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    table, th, td { border: 1px solid black; }
+    th, td { padding: 10px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>بحث الفاتورة</h1>
+  <input type="text" id="search" placeholder="أدخل كود الفاتورة">
+  <button onclick="searchInvoice()">بحث</button>
+  <div id="results"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Tabletop.js/1.5.1/tabletop.min.js"></script>
+  <script>
+    var publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1JG9rmv8mle6jHTx2onpBQrJtpmSO8Wgw9Za6CuEH-3g/pubhtml';
+
+    function fetchData(callback) {
+      Tabletop.init({ key: publicSpreadsheetUrl, callback: callback, simpleSheet: true });
+    }
+
+    function searchInvoice() {
+      var invoiceCode = document.getElementById('search').value;
+      fetchData(function(data) {
+        var filteredData = data.filter(row => Object.values(row).includes(invoiceCode));
+        displayResults(filteredData);
+      });
+    }
+
+    function displayResults(data) {
+      var resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+      if (data.length === 0) {
+        resultsDiv.innerHTML = 'لا يوجد نتائج';
+        return;
+      }
+      var table = document.createElement('table');
+      var headerRow = document.createElement('tr');
+      Object.keys(data[0]).forEach(key => {
+        var th = document.createElement('th');
+        th.innerText = key;
+        headerRow.appendChild(th);
+      });
+      table.appendChild(headerRow);
+      data.forEach(row => {
+        var tr = document.createElement('tr');
+        Object.values(row).forEach(cell => {
+          var td = document.createElement('td');
+          td.innerText = cell;
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+      resultsDiv.appendChild(table);
+    }
+  </script>
+</body>
+</html>
